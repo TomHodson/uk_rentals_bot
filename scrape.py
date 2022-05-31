@@ -13,6 +13,7 @@ import rapidjson
 import random
 import sys
 import time
+from slack_sdk import WebClient
 
 # Set up logging to both stout and to a file
 import logging, logging.handlers
@@ -58,6 +59,7 @@ with open('config.json') as f:
 urls = config["search_urls"]
 start_date = datetime.fromisoformat(config["start_date"])
 slack_token = config["slack_token"]
+sc = WebClient(token = slack_token)
 
 # get our local list of properties we've already seen
 with open('check_property_ids.txt', 'r') as f:
@@ -116,11 +118,6 @@ for i, (search_name, search_url) in enumerate(urls.items()):
     
 logger.info(f"Overall we found {len(all_properties)} new properties.")
 if len(all_properties) == 0: sys.exit()
-
-
-
-from slack_sdk import WebClient
-sc = WebClient(token = "xoxb-3616343189840-3592561774387-mK9AWd5bIi6KUgaps2RdGm3u")
 
 
 def property_description(p):
