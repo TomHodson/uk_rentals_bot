@@ -14,11 +14,14 @@ import random
 import sys
 import time
 from slack_sdk import WebClient
+from itertools import islice
+from random import randint
 
 # Set up logging to both stout and to a file
 import logging, logging.handlers
 logger = logging.getLogger("")
 logger.setLevel(logging.INFO)
+# logger.setLevel(logging.DEBUG)
 file_handler = logging.handlers.RotatingFileHandler("scraper.log", maxBytes=(1048576*5))
 sterr_handler = logging.StreamHandler(sys.stderr)
 # formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -26,6 +29,16 @@ sterr_handler = logging.StreamHandler(sys.stderr)
 logger.addHandler(file_handler)
 logger.addHandler(sterr_handler)
 logger.critical("Starting...")
+
+def random_chunk(li, min_chunk=5, max_chunk=20):
+    "split a list into randomly sized chunks"
+    it = iter(li)
+    while True:
+        nxt = list(islice(it,randint(min_chunk,max_chunk)))
+        if nxt:
+            yield nxt
+        else:
+            break
 
 def get_properties_by_id(ids):
     "Access an unoficial API to get property data by id"
@@ -103,16 +116,9 @@ for i, (search_name, search_url) in enumerate(urls.items()):
 
     #iterate over the properties and grab random numbers of them 
     logger.debug(f"Pulling more data about the results from the openrent API")
-    i = 0
-    maxsize = 14 #maximum number of results to pull at once
-    ids = list(properties.keys())
-    while i < len(properties) - 1:
-        N = random.randint(5, maxsize)
-        if len(properties) < i + maxsize: N = len(properties) - i
-        data = get_properties_by_id(ids[i : i + N])
-        for d in data:
-            properties[d['id']].update(d)
-        i += N
+    for chunk in random_chunk(properties.keys()):
+        data = get_properties_by_id(chunk)
+        for d in data: properties[d['id']].update(d)
 
     all_properties.update(properties)
     
@@ -126,8 +132,8 @@ def property_description(p):
     "text": {
         "type": "mrkdwn",
         "text": f"""
-£{p['prices']} {'incl bills' if p['bills'] else ''}| {p['bedrooms']} bed | Start {p['availableFrom'].strftime('%w %b %y')} {'| UNFURNISHED!' if p['unfurnished'] else ''}
-<{make_link(p['id'])}|{p['title']}>
+£{p['prices']} {'incl bills' if p['bills'] else ''}| {p['bedrooms']} bed | Start {p['availableFrom'].strftime('%d %b %y')} {'| UNFURNISHED!' if p['unfurnished'] else ''}
+<{make_link(p['ids'])}|{p['title']}>
 {p['description']}
             """,
             },
@@ -150,6 +156,7 @@ header = {
         ),
     },
 }
+logger.debug(f"Properties: {all_properties}")
 
 sc.chat_postMessage(
     channel = 'openrent',
