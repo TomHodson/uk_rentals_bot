@@ -126,14 +126,14 @@ logger.info(f"Overall we found {len(all_properties)} new properties.")
 if len(all_properties) == 0: sys.exit()
 
 
-def property_description(p):
+def property_description(id_, p):
     return {
     "type": "section",
     "text": {
         "type": "mrkdwn",
         "text": f"""
 £{p['prices']} {'incl bills' if p['bills'] else ''}| {p['bedrooms']} bed | Start {p['availableFrom'].strftime('%d %b %y')} {'| UNFURNISHED!' if p['unfurnished'] else ''}
-<{make_link(p['ids'])}|{p['title']}>
+<{make_link(id_)}|{p['title']}>
 {p['description']}
             """,
             },
@@ -167,7 +167,7 @@ for id_, prop in all_properties.items():
     sc.chat_postMessage(
         channel = 'openrent',
         text = 'New property found!',
-        blocks = [property_description(prop),])
+        blocks = [property_description(id_, prop),])
     time.sleep(0.1)
 
 # update the list of known properties
