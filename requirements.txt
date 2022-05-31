@@ -2,3 +2,4 @@ slackclient
 beautifulsoup4
 rapidjson
 numpy
+python-rapidjson
