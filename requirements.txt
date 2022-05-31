@@ -1,5 +1,5 @@
 requests
-slackclient
+slack_sdk
 beautifulsoup4
 rapidjson
 numpy
