@@ -1,0 +1,4 @@
+slackclient
+beautifulsoup4
+rapidjson
+numpy
