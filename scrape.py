@@ -24,10 +24,10 @@ logger.setLevel(logging.INFO)
 # logger.setLevel(logging.DEBUG)
 file_handler = logging.handlers.RotatingFileHandler("scraper.log", maxBytes=(1048576*5))
 sterr_handler = logging.StreamHandler(sys.stderr)
-# formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-# handler.setFormatter(formatter)
-logger.addHandler(file_handler)
-logger.addHandler(sterr_handler)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+for handler in [file_handler, sterr_handler]:
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 logger.critical("Starting...")
 
 def random_chunk(li, min_chunk=5, max_chunk=20):
