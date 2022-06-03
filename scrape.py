@@ -58,6 +58,9 @@ def our_filter(prop):
     if prop['availableFrom'] < start_date: return False
     if prop['isstudio']: return False
     if prop['isshared']: return False
+    if not prop['islivelistBool']: return False
+    # if prop['bedrooms'] < 2: return False
+
     
     price = prop['prices']
     if price < 1500 or price > 2200: return False
