@@ -194,9 +194,8 @@ for id_, prop in all_properties.items():
     time.sleep(0.1)
 
 # update the list of known properties
-with open('check_property_ids.txt', 'w') as f:
-    updated = checked_property_ids | set(all_properties.keys())
-    f.write("\n".join(str(i) for i in updated))
+with open('check_property_ids.txt', 'a') as f:
+    f.write("\n".join(str(i) for i in all_properties.keys()) + "\n")
 
 
 
