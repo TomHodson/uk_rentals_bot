@@ -62,11 +62,12 @@ def parse_js_list(s):
     "Parse the list from a js var name = [...] statement that might have line breaks etc"
     return rapidjson.loads(s.replace('\n', '').replace("'", '"'), parse_mode = rapidjson.PM_TRAILING_COMMAS | rapidjson.PM_COMMENTS)
 
-def our_filter(prop):
+def our_filter(prop, start_date):
     if prop['availableFrom'] < start_date: return False
     if prop['isstudio']: return False
     if prop['isshared']: return False
     if not prop['islivelistBool']: return False
+    if not prop['nonStudents']: return False
     # if prop['bedrooms'] < 2: return False
 
     
