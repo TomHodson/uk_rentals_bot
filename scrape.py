@@ -182,11 +182,6 @@ header = {
 }
 logger.debug(f"Properties: {all_properties}")
 
-sc.chat_postMessage(
-    channel = 'openrent',
-    text = '{len(all_properties)} new properties found!',
-    blocks = [header,])
-
 for id_, prop in all_properties.items():
     sc.chat_postMessage(
         channel = 'openrent',
