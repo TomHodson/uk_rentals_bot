@@ -40,6 +40,13 @@ def random_chunk(li, min_chunk=5, max_chunk=20):
         else:
             break
 
+def fmt_hours(n):
+    if n < 24: return f"{n} hours"
+    if n < 24 * 7: return f"{n/24:.0f} days"
+    if n < 24 * 7 * 4: return f"{n/24/7:.0f} weeks"
+    if n < 24 * 7 * 4 * 12: return f"{n/24/7/4:.0f} months"
+    return f"{n/24/7/4/12:.0f} years"
+
 def get_properties_by_id(ids, session = None):
     "Access an unoficial API to get property data by id"
     s = session if session else requests
