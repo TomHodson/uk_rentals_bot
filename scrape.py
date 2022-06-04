@@ -76,67 +76,78 @@ def our_filter(prop, start_date):
 
     return True
 
-# Load the config with a json parser that allows trailing commas
-with open('config.json') as f: 
-    config = rapidjson.load(f, parse_mode = rapidjson.PM_TRAILING_COMMAS | rapidjson.PM_COMMENTS)
+def load_config():
+    "Load the config with a json parser that allows trailing commas"
+    with open('config.json') as f: 
+        config = rapidjson.load(f, parse_mode = rapidjson.PM_TRAILING_COMMAS | rapidjson.PM_COMMENTS)
+    return config
+
+def load_seen_properties(fname = 'check_property_ids.txt'):
+    # get our local list of properties we've already seen
+    with open(fname, 'r') as f:
+        checked_property_ids = set(int(i) for i in f.read().split('\n') if i != '')
+    return checked_property_ids
+
+def search_properties(config, filter = None, already_seen = None):
+    "Return properties from search urls in config, with optional filter function and already_seen set"
+    urls = config["search_urls"]
+    start_date = datetime.fromisoformat(config["start_date"])
+    all_properties = {}
+
+    with requests.session() as s:
+        for i, (search_name, search_url) in enumerate(urls.items()):
+            r = s.get(search_url)
+            soup = BeautifulSoup(r.text, 'html.parser')
+
+            # find the script tag that contains the data we want
+            # the criteria I'm using is that it has a line that read "var PROPERTYIDS =  ..."
+            # This is how we avoid having to scroll the page to get all the properties
+            script_content = soup.find(lambda tag:tag.name=="script" and "PROPERTYIDS" in tag.text).text
+
+            #pull out all the var name = [...] lines from the script using a regex
+            variable_data_pairs = re.findall(r"var\s(\S+)\s?=\s?(\[[^\]]*\])", script_content)
+
+            #parse that into a dictionary
+            properties_arrays = {name : np.array(parse_js_list(data)) for name, data in variable_data_pairs}
+
+            # Add the data parsed from the script to a properties[property_id] = {key : data about property} object
+            ids = properties_arrays['PROPERTYIDS']
+            logger.info(f"Search {search_name} returned {len(ids)} results")
+
+            logger.debug(f"Parsing the results")
+            properties = {}
+            for i, id_ in enumerate(ids):
+                prop = {name : data[i] for name, data in properties_arrays.items()}
+                prop['availableFrom'] = datetime.today() + timedelta(days = int(prop['availableFrom']))
+                properties[id_] = prop
+
+            # Filter the results
+            properties = {i : prop for i, prop in properties.items() if our_filter(prop, start_date)}
+            logger.info(f"{len(properties)} of the results match our criteria.")
+
+            # Filter out results we've already seen
+            properties = {i : prop for i, prop in properties.items() if prop['PROPERTYIDS'] not in already_seen}
+            logger.info(f"{len(properties)} of those are new to us.")
+
+            #iterate over the properties and grab random numbers of them 
+            logger.debug(f"Pulling more data about the results from the openrent API")
+            for chunk in random_chunk(properties.keys()):
+                data = get_properties_by_id(chunk, session = s)
+                for d in data: properties[d['id']].update(d)
+
+            all_properties.update(properties)
+    return all_properties
+
 
 #pull in config data
-urls = config["search_urls"]
-start_date = datetime.fromisoformat(config["start_date"])
-slack_token = config["slack_token"]
-sc = WebClient(token = slack_token)
-
-# get our local list of properties we've already seen
-with open('check_property_ids.txt', 'r') as f:
-    checked_property_ids = set(int(i) for i in f.read().split('\n') if i != '')
-
-all_properties = {}
-
-for i, (search_name, search_url) in enumerate(urls.items()):
-    r = requests.get(search_url)
-    soup = BeautifulSoup(r.text, 'html.parser')
-
-    # find the script tag that contains the data we want
-    # the criteria I'm using is that it has a line that read "var PROPERTYIDS =  ..."
-    # This is how we avoid having to scroll the page to get all the properties
-    script_content = soup.find(lambda tag:tag.name=="script" and "PROPERTYIDS" in tag.text).text
-
-    #pull out all the var name = [...] lines from the script using a regex
-    variable_data_pairs = re.findall(r"var\s(\S+)\s?=\s?(\[[^\]]*\])", script_content)
-
-    #parse that into a dictionary
-    properties_arrays = {name : np.array(parse_js_list(data)) for name, data in variable_data_pairs}
-
-    # Add the data parsed from the script to a properties[property_id] = {key : data about property} object
-    ids = properties_arrays['PROPERTYIDS']
-    logger.info(f"Search {search_name} returned {len(ids)} results")
-
-    logger.debug(f"Parsing the results")
-    properties = {}
-    for i, id_ in enumerate(ids):
-        prop = {name : data[i] for name, data in properties_arrays.items()}
-        prop['availableFrom'] = datetime.today() + timedelta(days = int(prop['availableFrom']))
-        properties[id_] = prop
-
-    # Filter the results
-    properties = {i : prop for i, prop in properties.items() if our_filter(prop)}
-    logger.info(f"{len(properties)} of the results match our criteria.")
-
-    # Filter out results we've already seen
-    properties = {i : prop for i, prop in properties.items() if prop['PROPERTYIDS'] not in checked_property_ids}
-    logger.info(f"{len(properties)} of those are new to us.")
-
-    #iterate over the properties and grab random numbers of them 
-    logger.debug(f"Pulling more data about the results from the openrent API")
-    for chunk in random_chunk(properties.keys()):
-        data = get_properties_by_id(chunk)
-        for d in data: properties[d['id']].update(d)
-
-    all_properties.update(properties)
-    
+config = load_config()
+already_seen_ids = load_seen_properties()
+all_properties = search_properties(config, filter = our_filter, already_seen = already_seen_ids)
 logger.info(f"Overall we found {len(all_properties)} new properties.")
 if len(all_properties) == 0: sys.exit()
 
+slack_token = config["slack_token"]
+sc = WebClient(token = slack_token)
 
 def property_description(id_, p):
     return {
