@@ -157,6 +157,7 @@ def property_description(id_, p):
         "text": f"""
 £{p['prices']} {'incl bills' if p['bills'] else ''}| {p['bedrooms']} bed | Start {p['availableFrom'].strftime('%d %b %y')} {'| UNFURNISHED!' if p['unfurnished'] else ''}
 <{make_link(id_)}|{p['title']}>
+Online {fmt_hours(p['hoursLive'])}.
 {p['description']}
             """,
             },
