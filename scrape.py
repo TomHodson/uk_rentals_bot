@@ -40,11 +40,12 @@ def random_chunk(li, min_chunk=5, max_chunk=20):
         else:
             break
 
-def get_properties_by_id(ids):
+def get_properties_by_id(ids, session = None):
     "Access an unoficial API to get property data by id"
+    s = session if session else requests
     assert len(ids) < 20 # API limit
     endpoint = "https://www.openrent.co.uk/search/propertiesbyid?"
-    return requests.get(endpoint, [('ids', i) for i in ids]).json()
+    return s.get(endpoint, params = [('ids', i) for i in ids]).json()
 
 def make_link(property_id):
     "Construct a human usable link the a property"
