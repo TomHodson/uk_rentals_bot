@@ -180,13 +180,14 @@ header = {
         ),
     },
 }
-logger.debug(f"Properties: {all_properties}")
 
+logger.debug(f"Properties: {all_properties}")
 for id_, prop in all_properties.items():
     sc.chat_postMessage(
-        channel = 'openrent',
+        channel = config.get("slack_channel") or "openrent",
         text = 'New property found!',
-        blocks = [property_description(id_, prop),])
+        blocks = [property_description(id_, prop),],
+    )
     time.sleep(0.1)
 
 # update the list of known properties
