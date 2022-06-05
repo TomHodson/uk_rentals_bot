@@ -3,3 +3,4 @@ check_property_ids.txt
 scraper.log
 config.json
 cron_script.sh
+venv/
