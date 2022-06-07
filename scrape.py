@@ -143,6 +143,7 @@ def search_properties(config, filter = None, already_seen = None):
 config = load_config()
 already_seen_ids = load_seen_properties()
 all_properties = search_properties(config, filter = our_filter, already_seen = already_seen_ids)
+hostname = config["hostname"] or "dev_environment"
 logger.info(f"Overall we found {len(all_properties)} new properties.")
 # if len(all_properties) == 0: sys.exit()
 
@@ -184,7 +185,7 @@ header = {
 #post a message that the bot ran to a differnt channel
 sc.chat_postMessage(
     channel = config.get("debug_slack_channel") or "bot_testing",
-    text = f"Ran at {datetime.now().strftime('%d %b %y %H:%M')}, found {len(all_properties)} new properties",
+    text = f"Ran at {datetime.now().strftime('%d %b %y %H:%M')} on {hostname}, found {len(all_properties)} new properties",
 )
 
 logger.debug(f"Properties: {all_properties}")
