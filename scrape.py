@@ -73,8 +73,8 @@ def our_filter(prop, start_date):
     
     price = prop['prices']
     if price < 1600: return False
-    if p['bills'] and price > 2200: return False
-    if not p['bills'] and price > 1900: return False
+    if prop['bills'] and price > 2200: return False
+    if not prop['bills'] and price > 1900: return False
 
     return True
 
