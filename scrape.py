@@ -73,8 +73,8 @@ def our_filter(prop, start_date):
     
     price = prop['prices']
     if price < 1600: return False
-    if prop['bills'] and price > 2600: return False
-    if not prop['bills'] and price > 2400: return False
+    if prop['bills'] and price > 2400: return False
+    if not prop['bills'] and price > 2200: return False
 
     return True
 
@@ -162,7 +162,6 @@ def property_description(id_, p):
 <{make_link(id_)}|{p['title']}>
 Online {fmt_hours(p['hoursLive'])}.
 {p['description']}
-{p}
             """,
             },
 
