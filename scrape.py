@@ -68,7 +68,7 @@ def our_filter(prop, start_date):
     if prop['isshared']: return False
     if not prop['islivelistBool']: return False
     if not prop['nonStudents']: return False
-    # if prop['bedrooms'] < 2: return False
+    if prop['bedrooms'] < 2: return False
 
     
     price = prop['prices']
@@ -162,6 +162,7 @@ def property_description(id_, p):
 <{make_link(id_)}|{p['title']}>
 Online {fmt_hours(p['hoursLive'])}.
 {p['description']}
+{p}
             """,
             },
 
