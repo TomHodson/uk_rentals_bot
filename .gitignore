@@ -4,3 +4,5 @@ scraper.log
 config.json
 cron_script.sh
 venv/
+*.pyc
+*.ipynb
