@@ -121,7 +121,7 @@ class RightmoveSearch:
 
             try:
                 if data['keyFeatures']:
-                    p.description = "\nKey Features: " + ", ".join(data['keyFeatures'])
+                    p.description = "Key Features: " + ", ".join(data['keyFeatures'])
                 else: p.description = ""
             except KeyError: pass
 

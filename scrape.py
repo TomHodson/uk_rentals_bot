@@ -39,9 +39,10 @@ def our_filter(prop, config):
     if prop.acceptsProfessionals == False: return False
     if prop.bedrooms < 2: return False
     if prop.size and prop.size < 70: return False
+    if prop.agent == "OpenRent": return False #use lowercase openrent for our own searches on openrent
     
     if prop.price < 1600: return False
-    
+
     if (prop.includesBills == None) and prop.price > 2200: return False
     if (prop.includesBills == False) and prop.price > 2200: return False
     if (prop.includesBills == True) and prop.price > 2400: return False
@@ -130,8 +131,8 @@ def property_description(p):
     "text": {
         "type": "mrkdwn",
         "text": f"""
-£{p.price} {'incl bills' if p.includesBills else ''}| {p.bedrooms} bed | Start {p.availableFrom.strftime('%d %b %y') if p.availableFrom else "?"} {'| UNFURNISHED!' if p.isFurnished == False else ''} {f'| {p.size} sq m' if p.size else ''}
 <{p.url}|{p.title}>
+£{p.price} {'incl bills' if p.includesBills else ''}| {p.bedrooms} bed | Start {p.availableFrom.strftime('%d %b %y') if p.availableFrom else "?"} {'| UNFURNISHED!' if p.isFurnished == False else ''} {f'| {p.size} sq m' if p.size else ''}
 On {p.agent} for {fmt_timedelta(p.listedAt)}.
 {f"Nearest Station: {p.nearestStation}" if p.nearestStation else ""}
 {p.description}
