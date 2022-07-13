@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # coding: utf-8
-
+Error! 
 
 import requests
 from urllib.parse import urlparse
