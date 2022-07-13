@@ -51,13 +51,13 @@ def our_filter(prop, config):
     elif prop.maximumTenants and prop.maximumTenants > 2:
         if prop.size and prop.size < 70: return False #too small
         if prop.bedrooms < 2: return False
-        if (prop.includesBills in [None, False]) and prop.price > 2200: return False
-        if (prop.includesBills == True) and prop.price > 2500: return False
+        if (prop.includesBills in [None, False]) and prop.price > 2350: return False
+        if (prop.includesBills == True) and prop.price > 2650: return False
 
     else: # prop.maximumTenants == None or 0 or something else weird
         if prop.size and prop.size < 50: return False # too small
-        if (prop.includesBills in [None, False]) and prop.price > 2200: return False
-        if (prop.includesBills == True) and prop.price > 2500: return False
+        if (prop.includesBills in [None, False]) and prop.price > 2350: return False
+        if (prop.includesBills == True) and prop.price > 2650: return False
 
     return True
 
