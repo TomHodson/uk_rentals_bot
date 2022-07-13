@@ -44,7 +44,7 @@ def our_filter(prop, config):
     
     elif prop.maximumTenants == 2:
         if prop.size and prop.size < 50: return False #too small
-        if (prop.includesBills in [None, False]) and prop.price > 1900: return False
+        if (prop.includesBills in [None, False]) and prop.price > 1800: return False
         if (prop.includesBills == True) and prop.price > 2200: return False
         prop.slack_channel = "two-people"
     
