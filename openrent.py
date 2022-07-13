@@ -42,8 +42,11 @@ def get_properties_by_id(ids, session = None):
     "Access an unoficial API to get property data by id"
     s = session if session else requests
     assert len(ids) < 20 # API limit
+    print(ids)
     endpoint = "https://www.openrent.co.uk/search/propertiesbyid?"
-    return s.get(endpoint, params = [('ids', i.split(":")[1]) for i in ids]).json()
+    json = s.get(endpoint, params = [('ids', i.split(":")[1]) for i in ids]).json()
+    print([j['id'] for j in json])
+    return json
 
 def make_link(property_id):
     "Construct a human usable link the a property"
@@ -101,8 +104,8 @@ class OpenRentSearch:
         if session is None: session = requests
         for chunk in random_chunk(self.properties.keys()):
             data = get_properties_by_id(chunk, session = session)
-            for id, d in zip(chunk, data): 
-                p = self.properties[id]
+            for d in data: 
+                p = self.properties[f"openrent:{d['id']}"]
                 p.rawData.update(d)
                 p.title = d["title"]
                 p.description = d["description"]
