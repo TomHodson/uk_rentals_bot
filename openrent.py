@@ -42,10 +42,8 @@ def get_properties_by_id(ids, session = None):
     "Access an unoficial API to get property data by id"
     s = session if session else requests
     assert len(ids) < 20 # API limit
-    print(ids)
     endpoint = "https://www.openrent.co.uk/search/propertiesbyid?"
     json = s.get(endpoint, params = [('ids', i.split(":")[1]) for i in ids]).json()
-    print([j['id'] for j in json])
     return json
 
 def make_link(property_id):
