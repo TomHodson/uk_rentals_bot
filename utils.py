@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from itertools import islice
 from random import randint
+import numpy as np
 
 @dataclass
 class Property:
@@ -27,6 +28,7 @@ class Property:
     isStudio : bool = None
     isShared : bool = None
     acceptsProfessionals : bool = None
+    maximumTenants : int = None
     
     bedrooms : int = None
     bathrooms : int = None
@@ -40,6 +42,9 @@ class Property:
     isLive : bool = None
     letAgreed : bool = None
 
+    rawData : dict = None
+    slack_channel : str = None
+
 def random_chunk(li, min_chunk=5, max_chunk=19):
     "split a list into randomly sized chunks"
     it = iter(li)
@@ -50,12 +55,32 @@ def random_chunk(li, min_chunk=5, max_chunk=19):
         else:
             break
 
+def pairs(li):
+    "split a list into randomly sized chunks"
+    i = iter(li)
+    while True:
+        nxt = list(islice(i,2))
+        if nxt:
+            yield nxt
+        else:
+            break
+
 def fmt_timedelta(dt):
     timedelta = datetime.now(timezone.utc) - dt
-    n = timedelta.total_seconds() / 3600
+    
+    time_units = [
+        (60, "second"),
+        (60, "minute"),
+        (24, "hour"),
+        (7, "day"),
+        (4, "week"),
+        (12, "month"),
+        (np.inf, "year")
+    ]
 
-    if n < 24: return f"{n:.0f} hours"
-    if n < 24 * 7: return f"{n/24:.0f} days"
-    if n < 24 * 7 * 4: return f"{n/24/7:.0f} weeks"
-    if n < 24 * 7 * 4 * 12: return f"{n/24/7/4:.0f} months"
-    return f"{n/24/7/4/12:.0f} years"
+    #start in seconds and iteratively find the largest interval
+    value = timedelta.total_seconds()
+    if round(value) < 1: return "less than a second"
+    for next_size, unit_name in time_units:
+        if value < next_size: return f"{value:.0f} {unit_name}{'s' if round(value) > 1 else ''}"
+        value = value / next_size

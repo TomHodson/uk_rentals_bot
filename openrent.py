@@ -10,7 +10,7 @@ import logging, logging.handlers
 logger = logging.getLogger("")
 logger.setLevel(logging.INFO)
 
-from utils import Property, random_chunk
+from utils import Property, random_chunk, pairs
 
 openrent_keymap = {
     "PROPERTYIDS" : "id",
@@ -79,6 +79,7 @@ class OpenRentSearch:
         properties = {}
         for i, id_ in enumerate(ids):
             prop = Property(**{name : data[i] for name, data in properties_arrays.items() if name in openrent_keymap.values()})
+            prop.rawData = {name : data[i] for name, data in properties_arrays.items()}
             prop.availableFrom = datetime.now(timezone.utc) + timedelta(days = int(prop.availableFrom))
             prop.listedAt = datetime.now(timezone.utc) - timedelta(hours = int(properties_arrays['hoursLive'][i]))
             prop.url = make_link(prop.id)
@@ -102,10 +103,23 @@ class OpenRentSearch:
             data = get_properties_by_id(chunk, session = session)
             for id, d in zip(chunk, data): 
                 p = self.properties[id]
+                p.rawData.update(d)
                 p.title = d["title"]
                 p.description = d["description"]
                 p.letAgreed = d["letAgreed"]
                 p.imgUrl = 'http:' + d['imageUrl']
+        
+        for id, p in self.properties.items():
+            r = requests.get(p.url)
+            soup = BeautifulSoup(r.content, 'html.parser')
+
+            try:
+                stats_table_cells = soup.select('table.intro-stats td')
+                extra_data = dict(pairs((c.text.strip().replace(":", "") for c in stats_table_cells)))
+                p.maximumTenants = int(extra_data["Maximum Tenants"])
+            except Exception as e:
+                logger.warn(f"Err'd while trying to get maximum tenants: {e}")
+
 
     
 

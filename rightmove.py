@@ -26,6 +26,7 @@ def format_rightmove_properties(raw):
     
     data = {rightmove_keymap.get(k) : v for k,v in raw.items() if k in rightmove_keymap}
     out = Property(**data)
+    out.rawData = raw
 
     out.imgUrl = raw["propertyImages"]['mainImageSrc']
     out.id = f"rightmove:{raw['id']}"

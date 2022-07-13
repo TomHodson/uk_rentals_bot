@@ -37,15 +37,27 @@ def our_filter(prop, config):
     if prop.letAgreed == True: return False
 
     if prop.acceptsProfessionals == False: return False
-    if prop.bedrooms < 2: return False
-    if prop.size and prop.size < 70: return False
     if prop.agent == "OpenRent": return False #use lowercase openrent for our own searches on openrent
-    
-    if prop.price < 1600: return False
 
-    if (prop.includesBills == None) and prop.price > 2200: return False
-    if (prop.includesBills == False) and prop.price > 2200: return False
-    if (prop.includesBills == True) and prop.price > 2400: return False
+    if prop.maximumTenants == 1: 
+        return False
+    
+    elif prop.maximumTenants == 2:
+        if prop.size and prop.size < 50: return False #too small
+        if (prop.includesBills in [None, False]) and prop.price > 1900: return False
+        if (prop.includesBills == True) and prop.price > 2200: return False
+        prop.slack_channel = "two-people"
+    
+    elif prop.maximumTenants and prop.maximumTenants > 2:
+        if prop.size and prop.size < 70: return False #too small
+        if prop.bedrooms < 2: return False
+        if (prop.includesBills in [None, False]) and prop.price > 2200: return False
+        if (prop.includesBills == True) and prop.price > 2500: return False
+
+    else: # prop.maximumTenants == None or 0 or something else weird
+        if prop.size and prop.size < 50: return False # too small
+        if (prop.includesBills in [None, False]) and prop.price > 2200: return False
+        if (prop.includesBills == True) and prop.price > 2500: return False
 
     return True
 
@@ -134,6 +146,7 @@ def property_description(p):
 <{p.url}|{p.title}>
 £{p.price} {'incl bills' if p.includesBills else ''}| {p.bedrooms} bed | Start {p.availableFrom.strftime('%d %b %y') if p.availableFrom else "?"} {'| UNFURNISHED!' if p.isFurnished == False else ''} {f'| {p.size} sq m' if p.size else ''}
 On {p.agent} for {fmt_timedelta(p.listedAt)}.
+Max Tenants: {p.maximumTenants or '?'}
 {f"Nearest Station: {p.nearestStation}" if p.nearestStation else ""}
 {p.description}
             """,
@@ -170,7 +183,7 @@ for id_, prop in all_properties.items():
     # if prop.floorPlanUrl: blocks.append(floorplan(prop.floorPlanUrl))
 
     sc.chat_postMessage(
-        channel = config.get("slack_channel") or "openrent",
+        channel = prop.slack_channel or config.get("slack_channel") or "openrent",
         text = 'New property found!',
         blocks = blocks,
     )
