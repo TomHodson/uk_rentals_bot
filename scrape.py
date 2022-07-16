@@ -38,25 +38,9 @@ def our_filter(prop, config):
     if prop.acceptsProfessionals == False: return False
     if prop.agent == "OpenRent": return False #use lowercase openrent for our own searches on openrent
 
-    if prop.maximumTenants == 1: 
-        return False
-    
-    elif prop.maximumTenants == 2:
-        if prop.size and prop.size < 50: return False #too small
-        if (prop.includesBills in [None, False]) and prop.price > 1800: return False
-        if (prop.includesBills == True) and prop.price > 2200: return False
-        prop.slack_channel = "two-people"
-    
-    elif prop.maximumTenants and prop.maximumTenants > 2:
-        if prop.size and prop.size < 70: return False #too small
-        if prop.bedrooms < 2: return False
-        if (prop.includesBills in [None, False]) and prop.price > 2350: return False
-        if (prop.includesBills == True) and prop.price > 2650: return False
-
-    else: # prop.maximumTenants == None or 0 or something else weird
-        if prop.size and prop.size < 50: return False # too small
-        if (prop.includesBills in [None, False]) and prop.price > 2350: return False
-        if (prop.includesBills == True) and prop.price > 2650: return False
+    if prop.size and prop.size < 45: return False # too small
+    if (prop.includesBills in [None, False]) and prop.price > 2050: return False
+    if (prop.includesBills == True) and prop.price > 1750: return False
 
     return True
 
