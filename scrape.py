@@ -39,8 +39,8 @@ def our_filter(prop, config):
     if prop.agent == "OpenRent": return False #use lowercase openrent for our own searches on openrent
 
     if prop.size and prop.size < 45: return False # too small
-    if (prop.includesBills in [None, False]) and prop.price > 2050: return False
-    if (prop.includesBills == True) and prop.price > 1750: return False
+    if (prop.includesBills in [None, False]) and prop.price > 1750: return False
+    if (prop.includesBills == True) and prop.price > 2050: return False
 
     return True
 
@@ -61,7 +61,6 @@ def search_properties(config, filter = None, already_seen = None):
     urls = config["search_urls"]
     config["start_date"] = dateutil.parser.parse(config["start_date"], default = datetime.now(timezone.utc))
     all_properties = {}
-    checked = set()
 
     with requests.session() as s:
         for i, (search_name, search_url) in enumerate(urls.items()):
