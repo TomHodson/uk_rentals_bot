@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # coding: utf-8
-Error! 
 
 import requests
 from urllib.parse import urlparse
@@ -78,6 +77,7 @@ def search_properties(config, filter = None, already_seen = None):
     urls = config["search_urls"]
     config["start_date"] = dateutil.parser.parse(config["start_date"], default = datetime.now(timezone.utc))
     all_properties = {}
+    checked = set()
 
     with requests.session() as s:
         for i, (search_name, search_url) in enumerate(urls.items()):

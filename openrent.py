@@ -109,7 +109,8 @@ class OpenRentSearch:
                 p.description = d["description"]
                 p.letAgreed = d["letAgreed"]
                 p.imgUrl = 'http:' + d['imageUrl']
-        
+    
+    def even_more_info(self, session = None):
         for id, p in self.properties.items():
             r = requests.get(p.url)
             soup = BeautifulSoup(r.content, 'html.parser')
