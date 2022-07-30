@@ -39,8 +39,8 @@ def our_filter(prop, config):
     if prop.agent == "OpenRent": return False #use lowercase openrent for our own searches on openrent
 
     if prop.size and prop.size < 45: return False # too small
-    if (prop.includesBills in [None, False]) and prop.price > 1750: return False
-    if (prop.includesBills == True) and prop.price > 2050: return False
+    if (prop.includesBills in [None, False]) and prop.price > 1850: return False
+    if (prop.includesBills == True) and prop.price > 2150: return False
 
     return True
 
