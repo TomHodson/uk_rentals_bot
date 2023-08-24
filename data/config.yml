@@ -1,4 +1,4 @@
-slack_token : xoxb-00000000000-000000000000-xXxXxXxXxXxXxX
+slack_token : xoxb-
 start_date : 2023-11-01 # YYYY-MM-DD
 searches:
     - name: main

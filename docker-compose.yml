@@ -4,6 +4,4 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./config.yml:/app/config.yml
-      - ./scraper.log:/app/scraper.log
-      - ./check_property_ids.txt:/app/check_property_ids.txt
+      - ./data:/app/data

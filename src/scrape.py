@@ -24,7 +24,7 @@ logger = logging.getLogger("")
 logger.setLevel(logging.INFO)
 # logger.setLevel(logging.DEBUG)
 file_handler = logging.handlers.RotatingFileHandler(
-    "scraper.log", maxBytes=(1048576 * 5)
+    "data/scraper.log", maxBytes=(1048576 * 5)
 )
 sterr_handler = logging.StreamHandler(sys.stderr)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -76,11 +76,11 @@ def our_filter(prop, config, search_info):
 
 def load_config():
     "Load the config with a json parser that allows trailing commas"
-    with open("config.yml") as f:
+    with open("data/config.yml") as f:
         return yaml.safe_load(f)
 
 
-def load_seen_properties(fname="check_property_ids.txt"):
+def load_seen_properties(fname="data/check_property_ids.txt"):
     # get our local list of properties we've already seen
     Path(fname).touch(exist_ok=True)
     with open(fname, "r") as f:

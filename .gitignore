@@ -6,3 +6,4 @@ cron_script.sh
 venv/
 *.pyc
 *.ipynb
+data/*
