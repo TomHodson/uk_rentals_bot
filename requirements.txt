@@ -1,6 +1,8 @@
 requests
 slack_sdk
 beautifulsoup4
-rapidjson
 numpy
 python-rapidjson
+python-dateutil
+pyyaml
+

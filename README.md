@@ -4,6 +4,15 @@ Parses the script tags embedded in openrent.co.uk and rightmove.co.uk pages to c
 
 To use: 
 
+```
+cp example_config.json config.json
+# add your slack token and settings to config.json
+mamba env create --name rentbot
+mamba activate rentbot
+pip install -r requirements.txt
+python src/scrape.py
+```
+
 - Rename example_config.json -> config.json and fill it out with a slack bot token, start date, and some search urls from openrent or Rightmove
 - install requirements.txt
 - run scraper.py with python >3.8, possibly with a cron job.

@@ -1,9 +1,0 @@
-{
-    "slack_token" : "...",
-    "start_date" : "YYYY-MM-DD", // YYYY-MM-DD
-    "search_urls" : {
-        // nickname : url
-        "main" : "https://www.openrent.co.uk/properties-to-rent/372-strand-london-wc2r-0jj-uk?term=372%20Strand,%20London%20WC2R%200JJ,%20UK&area=7&lngn=-0.1208592&latn=51.51081&prices_min=1500&prices_max=2200&bedrooms_min=1&isLive=true",
-        "Islington" : "https://www.openrent.co.uk/properties-to-rent/islington-greater-london?term=Islington,%20Greater%20London&bedrooms_max=3&acceptNonStudents=true",
-    },
-}
