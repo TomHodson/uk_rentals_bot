@@ -8,10 +8,12 @@ from datetime import datetime, timezone
 import yaml
 import sys
 import time
+import re
 from slack_sdk import WebClient
 from pathlib import Path
+from typing import Optional
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from openrent import OpenRentSearch
 from rightmove import RightmoveSearch
@@ -71,6 +73,16 @@ def our_filter(prop, config, search_info):
     ):
         return False
 
+    prop.keywords = []
+    if prop.description:
+
+        # Filter out agents that start with "We are proud to"
+        if re.match("^we are[ ]?[\S]* proud", prop.description.lower()):
+            return False
+
+        prop.keywords = [k for k in search_info.keywords if k in prop.description.lower()]
+        if search_info.keywords and not prop.keywords: return False
+
     return True
 
 
@@ -82,6 +94,7 @@ def load_config():
 
 def load_seen_properties(fname="data/check_property_ids.txt"):
     # get our local list of properties we've already seen
+    p = Path(fname)
     Path(fname).touch(exist_ok=True)
     with open(fname, "r") as f:
         checked_property_ids = set(i for i in f.read().split("\n") if i != "")
@@ -92,9 +105,10 @@ def load_seen_properties(fname="data/check_property_ids.txt"):
 class Search:
     name: str
     url: str
-    max_price: float | None = None
-    max_price_with_bills: float | None = None
-    min_size_square_meters: float | None = None
+    max_price: Optional[float] = None
+    max_price_with_bills: Optional[float] = None
+    min_size_square_meters: Optional[float] = None
+    keywords: list[str] = field(default_factory=list)
 
 
 def search_properties(config, filter=None, already_seen=None):
@@ -177,6 +191,7 @@ def property_description(p):
 On {p.agent} for {fmt_timedelta(p.listedAt)}.
 Max Tenants: {p.maximumTenants or '?'}
 {f"Nearest Station: {p.nearestStation}" if p.nearestStation else ""}
+{f"Keywords: {' '.join(s.capitalize() for s in p.keywords)}" if p.keywords else ""}
 {p.description}
             """,
         },
@@ -222,3 +237,5 @@ for id_, prop in all_properties.items():
 with open("check_property_ids.txt", "a") as f:
     if len(all_properties.keys()) > 0:
         f.write("\n" + "\n".join(str(i) for i in all_properties.keys()))
+
+breakpoint()

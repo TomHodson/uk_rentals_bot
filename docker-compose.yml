@@ -1,5 +1,5 @@
 services:
-  main:
+  uk_rental_bot:
     build:
       context: .
       dockerfile: Dockerfile
