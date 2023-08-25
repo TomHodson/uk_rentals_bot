@@ -1,0 +1,16 @@
+[project]
+name = "uk-rentals-bot"
+version = "0.1.0"
+description = "Utilities to help with scraping openrent.co.uk and rightmove.co.uk"
+readme = "README.md"
+dependencies = [
+    "requests",
+    "slack_sdk",
+    "beautifulsoup4",
+    "numpy",
+    "python-rapidjson",
+    "python-dateutil",
+    "pyyaml",
+]
+
+
