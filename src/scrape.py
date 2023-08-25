@@ -37,7 +37,7 @@ for handler in [file_handler, sterr_handler]:
 logger.critical("Starting...")
 
 
-def our_filter(prop, config, search_info):
+def our_filter(prop, config, search_info, verbose = False):
     if prop.availableFrom != None and prop.availableFrom < config["start_date"]:
         return False
     if prop.isStudio == True:
@@ -59,18 +59,21 @@ def our_filter(prop, config, search_info):
         and prop.size
         and prop.size < search_info.min_size_square_meters
     ):
+        if verbose: logger.info(f"🧘🏽 {prop.id} is too small at {prop.size}m^2")
         return False  # too small
     if (
         search_info.max_price
         and (prop.includesBills in [None, False])
         and prop.price > search_info.max_price
     ):
+        if verbose: logger.info(f"💰 {prop.id} is too expensive at £{prop.price}")
         return False
     if (
         search_info.max_price_with_bills
         and (prop.includesBills == True)
         and prop.price > search_info.max_price_with_bills
     ):
+        if verbose: logger.info(f"💰 {prop.id} is too expensive at £{prop.price} with bills")
         return False
 
     prop.keywords = []
@@ -78,10 +81,13 @@ def our_filter(prop, config, search_info):
 
         # Filter out agents that start with "We are proud to"
         if re.match("^we are[ ]?[\S]* proud", prop.description.lower()):
+            if verbose: logger.info(f"😡 {prop.id} is from an agent.")
             return False
 
         prop.keywords = [k for k in search_info.keywords if k in prop.description.lower()]
-        if search_info.keywords and not prop.keywords: return False
+        if search_info.keywords and not prop.keywords: 
+            if verbose: logger.info(f"🗝️ {prop.id} doesn't contain any keywords.")
+            return False
 
     return True
 
@@ -92,12 +98,16 @@ def load_config():
         return yaml.safe_load(f)
 
 
-def load_seen_properties(fname="data/check_property_ids.txt"):
+def load_seen_properties(fname):
     # get our local list of properties we've already seen
     p = Path(fname)
-    Path(fname).touch(exist_ok=True)
-    with open(fname, "r") as f:
+    if not p.exists():
+        logger.critical(f"{p} does not exist, creating it.")
+        p.touch()
+
+    with open(p, "r") as f:
         checked_property_ids = set(i for i in f.read().split("\n") if i != "")
+
     return checked_property_ids
 
 
@@ -142,12 +152,17 @@ def search_properties(config, filter=None, already_seen=None):
             search.filter(lambda p: p.id not in already_seen)
             logger.info(f"{len(search.properties)} of those are new to us.")
 
+            # update the list of known properties
+            with open(config["checked_properties_list"], "a") as f:
+                if len(search.properties.keys()) > 0:
+                    f.write("\n" + "\n".join(str(i) for i in search.properties.keys()))
+
             # Grab any extra info that requires making per property requests
             # Do this after filtering out the obvious ones you don't want
             search.more_info(s)
 
             # Do an extra filter pass in case this extra info means that we now don't pass the test
-            search.filter(lambda p: our_filter(p, config, search_info))
+            search.filter(lambda p: our_filter(p, config, search_info, verbose=True))
             logger.info(
                 f"{len(search.properties)} of the results match our criteria after getting extra info."
             )
@@ -159,7 +174,7 @@ def search_properties(config, filter=None, already_seen=None):
 
 # pull in config data
 config = load_config()
-already_seen_ids = load_seen_properties()
+already_seen_ids = load_seen_properties(config["checked_properties_list"])
 all_properties = search_properties(
     config, filter=our_filter, already_seen=already_seen_ids
 )
@@ -189,7 +204,6 @@ def property_description(p):
 <{p.url}|{p.title}>
 £{p.price} {'incl bills' if p.includesBills else ''}| {p.bedrooms} bed | Start {p.availableFrom.strftime('%d %b %y') if p.availableFrom else "?"} {'| UNFURNISHED!' if p.isFurnished == False else ''} {f'| {p.size} sq m' if p.size else ''}
 On {p.agent} for {fmt_timedelta(p.listedAt)}.
-Max Tenants: {p.maximumTenants or '?'}
 {f"Nearest Station: {p.nearestStation}" if p.nearestStation else ""}
 {f"Keywords: {' '.join(s.capitalize() for s in p.keywords)}" if p.keywords else ""}
 {p.description}
@@ -232,10 +246,3 @@ for id_, prop in all_properties.items():
         blocks=blocks,
     )
     time.sleep(0.1)
-
-# update the list of known properties
-with open("check_property_ids.txt", "a") as f:
-    if len(all_properties.keys()) > 0:
-        f.write("\n" + "\n".join(str(i) for i in all_properties.keys()))
-
-breakpoint()
