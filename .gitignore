@@ -7,3 +7,4 @@ venv/
 *.ipynb
 data/*
 env/
+*.egg-info
