@@ -5,6 +5,7 @@ import rapidjson
 from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass, field
 import requests
+from collections import Counter
 
 import logging, logging.handlers
 logger = logging.getLogger("")
@@ -92,6 +93,15 @@ class OpenRentSearch:
         return self
 
     def filter(self, filter_func):
+        filtered_properties = {}
+        reasons = Counter()
+        for k, v in self.properties.items():
+            keep, reason = filter_func(v)
+            reasons[reason] += 1
+            if keep: filtered_properties[k] = v
+        self.properties = filtered_properties
+        return reasons
+
         self.properties = {k : v for k,v in self.properties.items() if filter_func(v)}
         return self
 

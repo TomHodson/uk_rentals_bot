@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass, field
 import requests
 import dateutil.parser
+from collections import Counter
 
 import logging, logging.handlers
 logger = logging.getLogger("")
@@ -74,8 +75,14 @@ class RightmoveSearch:
         return self
 
     def filter(self, filter_func):
-        self.properties = {k : v for k,v in self.properties.items() if filter_func(v)}
-        return self
+        filtered_properties = {}
+        reasons = Counter()
+        for k, v in self.properties.items():
+            keep, reason = filter_func(v)
+            reasons[reason] += 1
+            if keep: filtered_properties[k] = v
+        self.properties = filtered_properties
+        return reasons
 
     def more_info(self, session = None):
         "Use an undocumented openrent api to get extra details about the properties"
