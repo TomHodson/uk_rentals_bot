@@ -48,18 +48,18 @@ logger.info("Starting...")
 
 def our_filter(prop, config, search_info, verbose = False) -> tuple[bool, str]:
     if prop.availableFrom != None and prop.availableFrom < config["start_date"]:
-        return False, "Available too soon."
+        return False, "⏳️ Available too soon"
     if prop.isStudio == True:
         return False, "Studio"
     if prop.isShared == True:
-        return False, "Shared"
+        return False, "👥 Shared"
     if prop.isLive == False:
-        return False, "Not live"
+        return False, "✖️ Not live"
     if prop.letAgreed == True:
-        return False, "Let already agreed"
+        return False, "🤝 Let already agreed"
 
     if prop.acceptsProfessionals == False:
-        return False, "No professionals"
+        return False, "💼 No professionals"
     if prop.agent == "OpenRent":
         return False, "An openrent place on rightmove"
 
@@ -69,21 +69,21 @@ def our_filter(prop, config, search_info, verbose = False) -> tuple[bool, str]:
         and prop.size < search_info.min_size_square_meters
     ):
         if verbose: logger.info(f"🧘🏽 {prop.id} is too small at {prop.size}m^2")
-        return False, "Too small"
+        return False, "🔬 Too small"
     if (
         search_info.max_price
         and (prop.includesBills in [None, False])
         and prop.price > search_info.max_price
     ):
         if verbose: logger.info(f"💰 {prop.id} is too expensive at £{prop.price}")
-        return False, "Too expensive"
+        return False, "💰 Too expensive"
     if (
         search_info.max_price_with_bills
         and (prop.includesBills == True)
         and prop.price > search_info.max_price_with_bills
     ):
         if verbose: logger.info(f"💰 {prop.id} is too expensive at £{prop.price} with bills")
-        return False, "Too expensive"
+        return False, "💰 Too expensive"
 
     prop.keywords = []
     if prop.description:
@@ -91,14 +91,14 @@ def our_filter(prop, config, search_info, verbose = False) -> tuple[bool, str]:
         # Filter out agents that start with "We are proud to"
         if re.match("^we are[ ]?[\S]* proud", prop.description.lower()):
             if verbose: logger.info(f"😡 {prop.id} is from an agent.")
-            return False, "From agent"
+            return False, "😤 From agent"
 
         prop.keywords = [k for k in search_info.keywords if k in prop.description.lower()]
         if search_info.keywords and not prop.keywords: 
             if verbose: logger.info(f"🗝️ {prop.id} doesn't contain any keywords.")
-            return False, "No keywords"
+            return False, "🗝 No keywords"
 
-    return True, "Kept"
+    return True, "✅ Kept"
 
 
 def load_config():
