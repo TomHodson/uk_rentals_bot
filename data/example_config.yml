@@ -1,5 +1,9 @@
 slack_token : xoxb-000000000000000-00000000000000-xXXxxXXXXxxxX
 start_date : 2023-11-01 # YYYY-MM-DD
+hostname: the_name_of_the_machine_were_running_on
+slack_channel: the_name_of_the_slack_channel_to_post_new_properties_to
+debug_slack_channel: the_name_of_the_slack_channel_to_logs_to
+checked_properties_list: data/seen.txt
 searches:
     - name: main
       url : https://www.openrent.co.uk/properties-to-rent/372-strand-london-wc2r-0jj-uk?term=372%20Strand,%20London%20WC2R%200JJ,%20UK&area=7&lngn=-0.1208592&latn=51.51081&prices_min=1500&prices_max=2200&bedrooms_min=1&isLive=true
