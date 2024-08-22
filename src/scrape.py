@@ -89,7 +89,7 @@ def our_filter(prop, config, search_info, verbose = False) -> tuple[bool, str]:
     if prop.description:
 
         # Filter out agents that start with "We are proud to"
-        if re.match("^we are[ ]?[\S]* proud", prop.description.lower()):
+        if re.match(r"^we are[ ]?[\S]* proud", prop.description.lower()):
             if verbose: logger.info(f"😡 {prop.id} is from an agent.")
             return False, "😤 From agent"
 
